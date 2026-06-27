@@ -1,98 +1,30 @@
-# app.py — Islamabad Flowers Management System
-# Clean Read-Only | Green Floral Theme
+# app.py — Islamabad Flowers Main App
 
 import streamlit as st
 import mysql.connector
 import pandas as pd
 
-# ── Page Config ───────────────────────────────────────────
+# ── Page Config ──────────────────────────
 st.set_page_config(
     page_title="Islamabad Flowers",
     page_icon="🌸",
     layout="wide"
 )
 
+# ── Green Theme CSS ───────────────────────
 st.markdown("""
 <style>
-    /* Force light background always */
-    .stApp {
-        background-color: #f0f7f0 !important;
-    }
-
-    /* Force all text dark */
-    .stApp p, .stApp span, .stApp div,
-    .stApp label, .stApp h1, .stApp h2, .stApp h3 {
-        color: #1b5e20 !important;
-    }
-
-    /* Sidebar always dark green */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1b5e20, #2e7d32) !important;
-    }
-    [data-testid="stSidebar"] * {
-        color: white !important;
-    }
-
-    /* Metric cards always white */
-    [data-testid="metric-container"] {
-        background-color: white !important;
-        border: 2px solid #66bb6a !important;
-        border-radius: 12px !important;
-        padding: 16px !important;
-    }
-    [data-testid="stMetricLabel"] p {
-        color: #2e7d32 !important;
-        font-weight: bold !important;
-        font-size: 1rem !important;
-    }
-    [data-testid="stMetricValue"] {
-        color: #1b5e20 !important;
-        font-size: 2.2rem !important;
-        font-weight: bold !important;
-    }
-
-    /* Banner */
-    .banner {
-        background: linear-gradient(90deg, #2e7d32, #66bb6a);
-        color: white !important;
-        padding: 18px 28px;
-        border-radius: 12px;
-        margin-bottom: 24px;
-        font-size: 1.4rem;
-        font-weight: bold;
-    }
-
-    /* Dataframe always white background */
-    [data-testid="stDataFrame"] {
-        background: white !important;
-        border: 2px solid #a5d6a7 !important;
-        border-radius: 10px !important;
-    }
-    [data-testid="stDataFrame"] * {
-        color: #1b5e20 !important;
-        background: white !important;
-    }
-
-    /* Headings */
-    h1 { color: #1b5e20 !important; }
-    h2 { color: #2e7d32 !important; }
-    h3 { color: #388e3c !important; }
-
-    /* Divider */
-    hr { border-color: #a5d6a7 !important; }
-
-    /* Sidebar metrics fix */
-    [data-testid="stSidebar"] [data-testid="stMetricValue"] {
-        color: white !important;
-        font-size: 1.8rem !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stMetricLabel"] p {
-        color: #c8e6c9 !important;
-    }
+    .stApp { background-color: #f0f7f0 !important; }
+    [data-testid="stSidebar"] { background: linear-gradient(180deg, #1b5e20, #2e7d32) !important; }
+    [data-testid="stSidebar"] * { color: white !important; }
+    h1, h2, h3 { color: #1b5e20 !important; }
+    [data-testid="stMetricLabel"] { color: #2e7d32 !important; font-weight: bold !important; }
+    [data-testid="stMetricValue"] { color: #1b5e20 !important; font-weight: bold !important; }
+    [data-testid="metric-container"] { background: white !important; border: 2px solid #66bb6a !important; border-radius: 10px !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Database Connection ───────────────────────────────────
+# ── Database Connection ───────────────────
 def get_connection():
     return mysql.connector.connect(
         host     = st.secrets["host"],
@@ -103,209 +35,172 @@ def get_connection():
         ssl_disabled = False
     )
 
-def run_query(sql):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(sql)
-    rows = cursor.fetchall()
-    cols = [d[0] for d in cursor.description]
-    cursor.close()
-    conn.close()
-    return pd.DataFrame(rows, columns=cols)
+conn   = get_connection()
+cursor = conn.cursor()
 
-# ── Sidebar ───────────────────────────────────────────────
-st.sidebar.markdown("## 🌸 Islamabad Flowers")
-st.sidebar.markdown("---")
-menu = st.sidebar.selectbox("📋 Navigate", [
-    "🏠 Dashboard",
+# ── Sidebar Navigation ────────────────────
+st.sidebar.title("🌸 Islamabad Flowers")
+menu = st.sidebar.selectbox("📋 Select Section", [
+    "🏠 Home",
     "🌿 Suppliers",
     "🌺 Flowers",
     "🚚 Deliveries",
     "💐 Bouquets",
-    "📊 Sales Reports"
+    "📊 Sales Report"
 ])
-st.sidebar.markdown("---")
-st.sidebar.markdown("### 📌 Quick Stats")
-st.sidebar.metric("🌿 Suppliers", run_query("SELECT COUNT(*) FROM SUPPLIER").iloc[0,0])
-st.sidebar.metric("🌺 Flowers",   run_query("SELECT COUNT(*) FROM FLOWER").iloc[0,0])
-st.sidebar.metric("💐 Bouquets",  run_query("SELECT COUNT(*) FROM BOUQUET").iloc[0,0])
-st.sidebar.metric("🚚 Deliveries",run_query("SELECT COUNT(*) FROM DELIVERY").iloc[0,0])
 
-# ══════════════════════════════════════════════════════════
-# 🏠 DASHBOARD
-# ══════════════════════════════════════════════════════════
-if menu == "🏠 Dashboard":
-    st.markdown('<div class="banner">🌸 Islamabad Flowers — Management Dashboard</div>',
-                unsafe_allow_html=True)
-    st.markdown("Welcome to **Islamabad Flowers** Management System.")
-    st.markdown("---")
+st.title("🌸 Islamabad Flowers Management System")
+st.markdown("---")
 
-    # Metrics
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("🌿 Suppliers",  run_query("SELECT COUNT(*) FROM SUPPLIER").iloc[0,0])
-    col2.metric("🌺 Flower Types",run_query("SELECT COUNT(*) FROM FLOWER").iloc[0,0])
-    col3.metric("💐 Bouquets",   run_query("SELECT COUNT(*) FROM BOUQUET").iloc[0,0])
-    col4.metric("🚚 Deliveries", run_query("SELECT COUNT(*) FROM DELIVERY").iloc[0,0])
+# ══════════════════════════════════════════
+# HOME PAGE
+# ══════════════════════════════════════════
+if menu == "🏠 Home":
+    st.subheader("Welcome to Islamabad Flowers 🌸")
+    st.write("Use the sidebar to navigate between sections.")
 
-    st.markdown("---")
+    col1, col2, col3 = st.columns(3)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("### 🌺 Top Flowers by Stock")
-        df = run_query("""
-            SELECT F.CommonName AS Flower,
-                   SUM(DI.QuantityDelivered) AS Total_Stock
-            FROM DELIVERY_ITEM DI
-            JOIN FLOWER F ON DI.FlowerID = F.FlowerID
-            GROUP BY F.CommonName
-            ORDER BY Total_Stock DESC
-        """)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+    cursor.execute("SELECT COUNT(*) FROM SUPPLIER")
+    col1.metric("🌿 Total Suppliers", cursor.fetchone()[0])
 
-    with col2:
-        st.markdown("### 💐 Most Expensive Bouquets")
-        df = run_query("""
-            SELECT BouquetName AS Bouquet,
-                   RetailPrice AS Price_Rs
-            FROM BOUQUET
-            ORDER BY RetailPrice DESC
-        """)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+    cursor.execute("SELECT COUNT(*) FROM FLOWER")
+    col2.metric("🌺 Total Flowers", cursor.fetchone()[0])
 
-# ══════════════════════════════════════════════════════════
-# 🌿 SUPPLIERS
-# ══════════════════════════════════════════════════════════
+    cursor.execute("SELECT COUNT(*) FROM BOUQUET")
+    col3.metric("💐 Total Bouquets", cursor.fetchone()[0])
+
+# ══════════════════════════════════════════
+# SUPPLIERS PAGE
+# ══════════════════════════════════════════
 elif menu == "🌿 Suppliers":
-    st.markdown('<div class="banner">🌿 Supplier Information</div>',
-                unsafe_allow_html=True)
-    st.markdown("### 📋 All Registered Suppliers")
-    df = run_query("SELECT * FROM SUPPLIER")
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.subheader("🌿 All Suppliers")
+    cursor.execute("SELECT * FROM SUPPLIER")
+    rows = cursor.fetchall()
+    st.dataframe(
+        pd.DataFrame(rows, columns=["Supplier ID", "Supplier Name", "Contact Number"]),
+        use_container_width=True, hide_index=True
+    )
 
-# ══════════════════════════════════════════════════════════
-# 🌺 FLOWERS
-# ══════════════════════════════════════════════════════════
+# ══════════════════════════════════════════
+# FLOWERS PAGE
+# ══════════════════════════════════════════
 elif menu == "🌺 Flowers":
-    st.markdown('<div class="banner">🌺 Flower Inventory</div>',
-                unsafe_allow_html=True)
-    st.markdown("### 📋 Current Flower Inventory")
-    df = run_query("SELECT * FROM FLOWER")
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.subheader("🌺 Flower Inventory")
+    cursor.execute("SELECT * FROM FLOWER")
+    rows = cursor.fetchall()
+    st.dataframe(
+        pd.DataFrame(rows, columns=["Flower ID", "Common Name", "Cost Per Stem"]),
+        use_container_width=True, hide_index=True
+    )
 
-# ══════════════════════════════════════════════════════════
-# 🚚 DELIVERIES
-# ══════════════════════════════════════════════════════════
+# ══════════════════════════════════════════
+# DELIVERIES PAGE
+# ══════════════════════════════════════════
 elif menu == "🚚 Deliveries":
-    st.markdown('<div class="banner">🚚 Delivery Records</div>',
-                unsafe_allow_html=True)
-    st.markdown("### 📋 All Delivery Records")
-    df = run_query("""
+    st.subheader("🚚 Delivery Records")
+    cursor.execute("""
         SELECT
-            DI.DeliveryItemID  AS Item_ID,
-            S.SupplierName     AS Supplier,
-            F.CommonName       AS Flower,
-            D.DeliveryDate     AS Delivery_Date,
-            DI.QuantityDelivered AS Quantity,
-            DI.BulkPricePaid   AS Bulk_Price_Rs
+            DI.DeliveryItemID,
+            S.SupplierName,
+            F.CommonName,
+            D.DeliveryDate,
+            DI.QuantityDelivered,
+            DI.BulkPricePaid
         FROM DELIVERY_ITEM DI
         JOIN DELIVERY D ON DI.DeliveryID = D.DeliveryID
         JOIN SUPPLIER S ON D.SupplierID  = S.SupplierID
         JOIN FLOWER   F ON DI.FlowerID   = F.FlowerID
-        ORDER BY D.DeliveryDate DESC
     """)
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    rows = cursor.fetchall()
+    st.dataframe(
+        pd.DataFrame(rows, columns=["Item ID", "Supplier", "Flower", "Delivery Date", "Qty Delivered", "Bulk Price Paid"]),
+        use_container_width=True, hide_index=True
+    )
 
-# ══════════════════════════════════════════════════════════
-# 💐 BOUQUETS
-# ══════════════════════════════════════════════════════════
+# ══════════════════════════════════════════
+# BOUQUETS PAGE
+# ══════════════════════════════════════════
 elif menu == "💐 Bouquets":
-    st.markdown('<div class="banner">💐 Bouquet Designs & Recipes</div>',
-                unsafe_allow_html=True)
+    st.subheader("💐 Bouquet Designs & Recipes")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("### 📋 All Bouquet Designs")
-        df = run_query("SELECT * FROM BOUQUET ORDER BY RetailPrice DESC")
-        st.dataframe(df, use_container_width=True, hide_index=True)
+    st.write("### All Bouquets")
+    cursor.execute("SELECT * FROM BOUQUET")
+    rows = cursor.fetchall()
+    st.dataframe(
+        pd.DataFrame(rows, columns=["Bouquet ID", "Bouquet Name", "Retail Price"]),
+        use_container_width=True, hide_index=True
+    )
 
-    with col2:
-        st.markdown("### 📋 Bouquet Recipes")
-        df = run_query("""
-            SELECT
-                B.BouquetName AS Bouquet,
-                F.CommonName  AS Flower,
-                BR.StemCount  AS Stems_Required
-            FROM BOUQUET_RECIPE BR
-            JOIN BOUQUET B ON BR.BouquetID = B.BouquetID
-            JOIN FLOWER  F ON BR.FlowerID  = F.FlowerID
-            ORDER BY B.BouquetName
-        """)
-        st.dataframe(df, use_container_width=True, hide_index=True)
+    st.write("### Bouquet Recipes")
+    cursor.execute("""
+        SELECT B.BouquetName, F.CommonName, BR.StemCount
+        FROM BOUQUET_RECIPE BR
+        JOIN BOUQUET B ON BR.BouquetID = B.BouquetID
+        JOIN FLOWER  F ON BR.FlowerID  = F.FlowerID
+    """)
+    rows = cursor.fetchall()
+    st.dataframe(
+        pd.DataFrame(rows, columns=["Bouquet Name", "Flower", "Stem Count"]),
+        use_container_width=True, hide_index=True
+    )
 
-# ══════════════════════════════════════════════════════════
-# 📊 SALES REPORTS
-# ══════════════════════════════════════════════════════════
-elif menu == "📊 Sales Reports":
-    st.markdown('<div class="banner">📊 Sales Analysis Reports</div>',
-                unsafe_allow_html=True)
+# ══════════════════════════════════════════
+# SALES REPORT PAGE
+# ══════════════════════════════════════════
+elif menu == "📊 Sales Report":
+    st.subheader("📊 Sales Analysis Report")
 
-    # Report 1
-    st.markdown("### 📦 Report 1 — Total Stock & Cost Per Flower")
-    df = run_query("""
-        SELECT
-            F.CommonName          AS Flower,
-            SUM(DI.QuantityDelivered) AS Total_Stock,
-            SUM(DI.BulkPricePaid)     AS Total_Cost_Rs
+    st.write("### 🌺 Total Stock Delivered Per Flower")
+    cursor.execute("""
+        SELECT F.CommonName,
+               SUM(DI.QuantityDelivered) AS TotalStock,
+               SUM(DI.BulkPricePaid)     AS TotalCost
         FROM DELIVERY_ITEM DI
         JOIN FLOWER F ON DI.FlowerID = F.FlowerID
         GROUP BY F.CommonName
-        ORDER BY Total_Stock DESC
     """)
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    rows = cursor.fetchall()
+    st.dataframe(
+        pd.DataFrame(rows, columns=["Flower", "Total Stock", "Total Cost"]),
+        use_container_width=True, hide_index=True
+    )
 
-    st.markdown("---")
+    st.write("### 💐 Bouquets by Retail Price")
+    cursor.execute("SELECT BouquetName, RetailPrice FROM BOUQUET ORDER BY RetailPrice DESC")
+    rows = cursor.fetchall()
+    st.dataframe(
+        pd.DataFrame(rows, columns=["Bouquet Name", "Retail Price"]),
+        use_container_width=True, hide_index=True
+    )
 
-    col1, col2 = st.columns(2)
+    st.write("### 🚚 Deliveries Per Supplier")
+    cursor.execute("""
+        SELECT S.SupplierName, COUNT(D.DeliveryID) AS TotalDeliveries
+        FROM DELIVERY D
+        JOIN SUPPLIER S ON D.SupplierID = S.SupplierID
+        GROUP BY S.SupplierName
+    """)
+    rows = cursor.fetchall()
+    st.dataframe(
+        pd.DataFrame(rows, columns=["Supplier", "Total Deliveries"]),
+        use_container_width=True, hide_index=True
+    )
 
-    # Report 2
-    with col1:
-        st.markdown("### 💐 Report 2 — Bouquets by Retail Price")
-        df = run_query("""
-            SELECT BouquetName AS Bouquet,
-                   RetailPrice AS Price_Rs
-            FROM BOUQUET
-            ORDER BY RetailPrice DESC
-        """)
-        st.dataframe(df, use_container_width=True, hide_index=True)
-
-    # Report 3
-    with col2:
-        st.markdown("### 🚚 Report 3 — Deliveries Per Supplier")
-        df = run_query("""
-            SELECT
-                S.SupplierName        AS Supplier,
-                COUNT(D.DeliveryID)   AS Total_Deliveries,
-                SUM(DI.QuantityDelivered) AS Total_Flowers
-            FROM DELIVERY D
-            JOIN SUPPLIER S     ON D.SupplierID  = S.SupplierID
-            JOIN DELIVERY_ITEM DI ON D.DeliveryID = DI.DeliveryID
-            GROUP BY S.SupplierName
-            ORDER BY Total_Deliveries DESC
-        """)
-        st.dataframe(df, use_container_width=True, hide_index=True)
-
-    st.markdown("---")
-
-    # Report 4
-    st.markdown("### 🌸 Report 4 — Most Used Flowers in Bouquets")
-    df = run_query("""
-        SELECT
-            F.CommonName       AS Flower,
-            COUNT(BR.RecipeID) AS Used_In_Bouquets,
-            SUM(BR.StemCount)  AS Total_Stems
+    st.write("### 🌸 Most Used Flowers in Bouquets")
+    cursor.execute("""
+        SELECT F.CommonName, COUNT(BR.RecipeID) AS UsedInBouquets, SUM(BR.StemCount) AS TotalStems
         FROM BOUQUET_RECIPE BR
         JOIN FLOWER F ON BR.FlowerID = F.FlowerID
         GROUP BY F.CommonName
-        ORDER BY Total_Stems DESC
+        ORDER BY TotalStems DESC
     """)
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    rows = cursor.fetchall()
+    st.dataframe(
+        pd.DataFrame(rows, columns=["Flower", "Used In Bouquets", "Total Stems"]),
+        use_container_width=True, hide_index=True
+    )
+
+# ── Close Connection ──────────────────────
+cursor.close()
+conn.close()
