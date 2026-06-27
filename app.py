@@ -12,46 +12,44 @@ st.set_page_config(
     layout="wide"
 )
 
-# ── Custom CSS ────────────────────────────────────────────
 st.markdown("""
 <style>
-    /* Main background */
+    /* Force light background always */
     .stApp {
-        background: linear-gradient(135deg, #f0f7f0 0%, #e8f5e9 100%);
+        background-color: #f0f7f0 !important;
     }
 
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #1b5e20 0%, #2e7d32 100%);
+    /* Force all text dark */
+    .stApp p, .stApp span, .stApp div,
+    .stApp label, .stApp h1, .stApp h2, .stApp h3 {
+        color: #1b5e20 !important;
     }
-    [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] span,
-    [data-testid="stSidebar"] div {
+
+    /* Sidebar always dark green */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1b5e20, #2e7d32) !important;
+    }
+    [data-testid="stSidebar"] * {
         color: white !important;
     }
 
-    /* Metric cards — fix visibility */
+    /* Metric cards always white */
     [data-testid="metric-container"] {
-        background: white !important;
-        border: 2px solid #66bb6a;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 12px rgba(46,125,50,0.15);
+        background-color: white !important;
+        border: 2px solid #66bb6a !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
     }
-    [data-testid="stMetricLabel"] {
+    [data-testid="stMetricLabel"] p {
         color: #2e7d32 !important;
-        font-size: 1rem !important;
         font-weight: bold !important;
+        font-size: 1rem !important;
     }
     [data-testid="stMetricValue"] {
         color: #1b5e20 !important;
-        font-size: 2.5rem !important;
+        font-size: 2.2rem !important;
         font-weight: bold !important;
     }
-
-    /* Headings */
-    h1, h2, h3 { color: #1b5e20 !important; }
 
     /* Banner */
     .banner {
@@ -64,23 +62,32 @@ st.markdown("""
         font-weight: bold;
     }
 
-    /* Dataframe */
+    /* Dataframe always white background */
     [data-testid="stDataFrame"] {
+        background: white !important;
         border: 2px solid #a5d6a7 !important;
         border-radius: 10px !important;
-        overflow: hidden;
-        background: white;
     }
+    [data-testid="stDataFrame"] * {
+        color: #1b5e20 !important;
+        background: white !important;
+    }
+
+    /* Headings */
+    h1 { color: #1b5e20 !important; }
+    h2 { color: #2e7d32 !important; }
+    h3 { color: #388e3c !important; }
 
     /* Divider */
     hr { border-color: #a5d6a7 !important; }
 
-    /* Sidebar metrics */
+    /* Sidebar metrics fix */
     [data-testid="stSidebar"] [data-testid="stMetricValue"] {
-        color: #c8e6c9 !important;
-    }
-    [data-testid="stSidebar"] [data-testid="stMetricLabel"] {
         color: white !important;
+        font-size: 1.8rem !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMetricLabel"] p {
+        color: #c8e6c9 !important;
     }
 </style>
 """, unsafe_allow_html=True)
